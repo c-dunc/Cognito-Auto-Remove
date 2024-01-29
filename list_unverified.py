@@ -8,12 +8,15 @@ logger = logging.getLogger()
 
 INVAL_STATUS = ["UNCONFIRMED", "RESET_REQUIRED", "FORCE_CHANGE_PASSWORD"]
 
+user_pool_id = os.environ.get('user_pool_id')
+
 def lambda_handler(event, context):
     """
     Lambda handler function automatically used when Lambda is triggered.
-    """
+    """ 
+
     logger.info(f"New event: \n{event}")
-    user_pool_id = os.environ.get('user_pool_id')
+    
     if not user_pool_id:
         logger.error("User pool ID not found")
         return {"error": "User pool ID not found"}
