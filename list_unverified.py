@@ -15,11 +15,11 @@ def lambda_handler(event, context):
     logger.info(f"New event: \n{event}")
     user_pool_id = os.environ.get('user_pool_id')
     if not user_pool_id:
-        logger.error("User pool ID not found in environment variables.")
+        logger.error("User pool ID not found")
         return {"error": "User pool ID not found"}
 
     client = boto3.client("cognito-idp")
-    invalid_users = []  # Declaring the list here ensures it's empty for each invocation
+    invalid_users = []
     for status in INVAL_STATUS:
         response = client.list_users(UserPoolId=user_pool_id, Filter=f'cognito:user_status="{status}"')
         invalid_users.extend(response.get('Users', []))
