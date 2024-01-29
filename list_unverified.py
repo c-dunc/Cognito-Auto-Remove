@@ -7,7 +7,6 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
 
 INVAL_STATUS = ["UNCONFIRMED", "RESET_REQUIRED", "FORCE_CHANGE_PASSWORD"]
-invalid_users = []
 
 def lambda_handler(event, context):
     """
@@ -20,8 +19,9 @@ def lambda_handler(event, context):
         return {"error": "User pool ID not found"}
 
     client = boto3.client("cognito-idp")
+    invalid_users = []  # Declaring the list here ensures it's empty for each invocation
     for status in INVAL_STATUS:
         response = client.list_users(UserPoolId=user_pool_id, Filter=f'cognito:user_status="{status}"')
         invalid_users.extend(response.get('Users', []))
-      
+
     return invalid_users
