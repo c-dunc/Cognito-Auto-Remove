@@ -6,8 +6,6 @@ import os
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
 
-INVAL_STATUS = ["UNCONFIRMED", "RESET_REQUIRED", "FORCE_CHANGE_PASSWORD"]
-
 user_pool_id = os.environ.get('user_pool_id')
 
 def lambda_handler(event, context):
@@ -17,14 +15,18 @@ def lambda_handler(event, context):
 
     logger.info(f"New event: \n{event}")
     
+    username = event['username']
+
     if not user_pool_id:
         logger.error("User pool ID not found")
         return {"error": "User pool ID not found"}
 
     client = boto3.client("cognito-idp")
-    invalid_users = []
-    for status in INVAL_STATUS:
-        response = client.list_users(UserPoolId=user_pool_id, Filter=f'cognito:user_status="{status}"')
-        invalid_users.extend(response.get('Users', []))
-
-    return invalid_users
+    logger.info(f"Attempting to delete {username}")
+    try: 
+        response = client.admin_delete_user(UserPoold=user_pool_id,Username=username)
+        output = f"Removed {username}"
+        return output
+    except Exception as e:
+        output = f"Error in removing {username}\n{e}"
+        return output
