@@ -13,6 +13,7 @@ user_pool_id = os.environ.get('user_pool_id')
 def lambda_handler(event, context):
     """
     Lambda handler function automatically used when Lambda is triggered.
+    :param event:
     """ 
 
     logger.info(f"New event: \n{event}")
