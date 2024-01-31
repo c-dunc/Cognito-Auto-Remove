@@ -16,7 +16,7 @@ def lambda_handler(event, context):
     
     try:
         
-        response = cognito_client.admin_set_user_password(UserPoolId=user_pool_id,Username=username,Password=new_password,Permanent=True)
+        cognito_client.admin_set_user_password(UserPoolId=user_pool_id,Username=username,Password=new_password,Permanent=True)
         return {
             'statusCode': 200,
             'body': 'Password reset successfully.'
