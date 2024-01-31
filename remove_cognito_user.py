@@ -10,6 +10,7 @@ INVAL_STATUS = {"UNCONFIRMED", "RESET_REQUIRED", "FORCE_CHANGE_PASSWORD"}
 
 user_pool_id = os.environ.get('user_pool_id')
 
+
 def lambda_handler(event, context):
     """
     Lambda handler function automatically used when Lambda is triggered.
