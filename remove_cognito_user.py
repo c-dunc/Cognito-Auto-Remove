@@ -14,12 +14,11 @@ logger.setLevel(logging.INFO)
 
 # Constants
 INVAL_STATUS = {"UNCONFIRMED", "RESET_REQUIRED", "FORCE_CHANGE_PASSWORD"}
+user_pool_id = os.environ.get("user_pool_id")
+aged_user_threshold = os.environ.get("aged_user_threshold") # uses days e.g. 30 = 30 days
 
 # Initialize boto3 client outside of functions
 client = boto3.client("cognito-idp")
-
-user_pool_id = os.environ.get("user_pool_id")
-aged_user_threshold = os.environ.get("aged_user_threshold") # uses days e.g. 30 = 30 days
 
 def remove_user(username: str, user_pool_id=user_pool_id):
     logger.info(f"Removing user '{username}' from user pool '{user_pool_id}'...")
@@ -30,20 +29,19 @@ def remove_user(username: str, user_pool_id=user_pool_id):
     except ClientError as e:
         return {"error": f"Failed to remove user '{username}': {e}"}
 
-def confirm_unverified_status(user_data: dict, username: str):
+def confirm_unverified_status(username: str):
     logger.info(f"Confirming user '{username}' is in unverified status...")
     try:
-        users = user_data.get("Users", [])
-        user_status = next((user_info["UserStatus"] for user_info in users if "UserStatus" in user_info), None)
-
+        response = client.admin_get_user(UserPoolId=user_pool_id, Username=username)
+        user_status = response['UserStatus']
         if user_status in INVAL_STATUS:
             return True
         else:
             return False
+        
     except ClientError as e:
-        logger.error(f"Failed to retrieve user status for '{username}': {e}")
-        return {"error": f"Failed to retrieve user status for '{username}': {e}"}
-
+        return {"error": f"Error occurred while confirming unverified status for user '{username}': {e}"}
+    
 def check_aged_account(user_data: list, username: str):
     logger.info(f"Checking age of user '{username}'... must be at least {aged_user_threshold} days")
     try:
@@ -67,16 +65,12 @@ def lambda_handler(event: dict, context):
     if not user_pool_id:
         return {"error": "User pool ID not found"}
 
-    try:
-        user_data = client.list_users(UserPoolId=user_pool_id, Filter=f'username="{username}"')
-    except ClientError as e:
-        return {"error": f"Failed to retrieve user data for '{username}': {e}"}
-
-    if not confirm_unverified_status(user_data, username):
-        return {"error": f"User is valid and cannot be removed: '{username}' - {user_data}"}
+    if not confirm_unverified_status(username):
+        return {"error": "User is verfied. Cannot remove user."}
+    logger.info(f"User '{username}' is unverified.")
 
     # creation_date = check_aged_account(user_data, username)
     # if not creation_date:
     #     return {"error": f"Creation date not found for user '{username}'"}
 
-    remove_user(username)
+    # remove_user(username)
