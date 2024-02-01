@@ -29,6 +29,7 @@ def remove_user(username: str, user_pool_id=user_pool_id):
 
 def aged_account(username: str):
     logger.info(f"Checking if user {username} created in last 30 days.")
+    # TODO
 
 def confirm_unverified_status(username: str):
 
@@ -59,3 +60,5 @@ def lambda_handler(event: str, context):
 
     if confirm_unverified_status(username) == True:
         logger.info(f"User {username} has invalid status. Removing user.")
+    else:
+        return {"error": "User is valid and cannot be removed."}
