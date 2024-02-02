@@ -1,6 +1,8 @@
 import logging
+import datetime
 import os
 import boto3
+from datetime import datetime
 from botocore.exceptions import ClientError
 
 # Set up logging
@@ -8,7 +10,6 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 # TODO 
-# Fix issue with check_aged_account returning None
 # Implement check_aged_account to check if user is older than 30 days
 
 
@@ -25,7 +26,6 @@ def remove_user(username: str, user_pool_id=user_pool_id):
     try:
         client.admin_delete_user(UserPoolId=user_pool_id, Username=username)
         return {"message": f"Removed user {username} successfully."}
-        pass
     except ClientError as e:
         return {"error": f"Failed to remove user '{username}': {e}"}
 
@@ -42,20 +42,18 @@ def confirm_unverified_status(username: str):
     except ClientError as e:
         return {"error": f"Error occurred while confirming unverified status for user '{username}': {e}"}
     
-def check_aged_account(user_data: list, username: str):
+def check_aged_account(username: str):
     logger.info(f"Checking age of user '{username}'... must be at least {aged_user_threshold} days")
     try:
-        user_info = user_data[0]
-        creation_date = user_info.get("UserCreateDate")
-        if creation_date:
-            return str(creation_date)
-        else:
-            logger.error(f"Creation date not found for user '{username}'")
-            return None
-    except Exception as e:
-        logger.error(f"Error occurred while checking age for user '{username}': {e}")
-        return None
-
+        response = client.admin_get_user(UserPoolId=user_pool_id, Username=username)
+        creation_date_time = response['UserCreateDate'] # "2024-02-01 23:13:26.127000+00:00"
+        creation_date = str(creation_date_time)[:10] # "2024-02-01" YYYY-MM-DD
+        current_date = datetime.today().strftime('%Y-%m-%d')
+        logger.info(f"current_date: {current_date}, creation_date: {creation_date}")
+    
+    except ClientError as e:
+        logger.error(f"Error occurred while confirming unverified status for user '{username}': {e}")
+        return {"error": f"Error occurred while confirming unverified status for user '{username}': {e}"}
 
 def lambda_handler(event: dict, context):
     username = event.get("username")
@@ -67,10 +65,9 @@ def lambda_handler(event: dict, context):
 
     if not confirm_unverified_status(username):
         return {"error": "User is verfied. Cannot remove user."}
-    logger.info(f"User '{username}' is unverified.")
 
-    # creation_date = check_aged_account(user_data, username)
-    # if not creation_date:
-    #     return {"error": f"Creation date not found for user '{username}'"}
-
-    # remove_user(username)
+    if check_aged_account(username):
+        logger.info(f"Removing user '{username}' from user pool '{user_pool_id}'...")
+        # remove_user(username)
+    else:
+        return {"error": f"User is less than {aged_user_threshold}d old."}
