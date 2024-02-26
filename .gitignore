@@ -1,13 +1,7 @@
-<<<<<<< HEAD
 # .gitignore
-=======
 venv/
 .vscode/
 __pycache__/
-<<<<<<< HEAD
->>>>>>> 15f1cc1 (move functions to libraries)
-=======
 lambda-env/
 build.sh
 function.zip
->>>>>>> 3ab18ca (adding requirements.txt)
