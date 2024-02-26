@@ -1,7 +1,1 @@
 # .gitignore
-venv/
-.vscode/
-__pycache__/
-lambda-env/
-build.sh
-function.zip
