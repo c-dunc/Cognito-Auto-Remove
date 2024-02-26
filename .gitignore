@@ -1,1 +1,7 @@
+<<<<<<< HEAD
 # .gitignore
+=======
+venv/
+.vscode/
+__pycache__/
+>>>>>>> 15f1cc1 (move functions to libraries)
