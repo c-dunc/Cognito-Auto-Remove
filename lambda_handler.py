@@ -1,7 +1,7 @@
 import boto3
 import json
 
-from core.cognito_handler import user_management
+from core.cognito_handler import UserManagement
 
 client = boto3.client("cognito-idp")
 
@@ -24,16 +24,18 @@ def lambda_handler(event, context):
     print(f"New event: \n{event}")
 
     try: 
-        invalid_users = user_management.list_invalid_users(invalid_status, user_pool_id)
+        invalid_users = UserManagement.list_invalid_users(invalid_status, user_pool_id)
         for user in invalid_users:
-            aged = user_management.check_user_aged(user, user_pool_id, aged_threshold)
-            if aged:
-                try:
-                    user_management.remove_user(user, user_pool_id)
-                except:
-                    print(f"Unable to remove user '{user['Username']}'")
-            else:
-                print(f"User '{user}' is not aged enough to be removed.")
-                return
+            aged = UserManagement.check_user_aged(user, user_pool_id, aged_threshold)
+            UserManagement.check_user_aged(user, user_pool_id, aged_threshold)
+
+    #         if aged:
+    #             try:
+    #                 UserManagement.remove_user(user, user_pool_id)
+    #             except:
+    #                 print(f"Unable to remove user '{user['Username']}'")
+    #         else:
+    #             print(f"User '{user}' is not aged enough to be removed.")
+    #             return
     except: 
         pass
