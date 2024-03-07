@@ -1,5 +1,5 @@
 {
     "user_pool_id" : "eu-west-2_ZROHKM6He",
-    "aged_user_threshold": "7",
+    "aged_threshold": "7",
     "invalid_status": "UNCONFIRMED"
 }

@@ -1,11 +1,7 @@
-import logging
 import boto3
 import json
 
-from core.cognito_management import user_management
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger()
+from core.cognito_handler import user_management
 
 client = boto3.client("cognito-idp")
 
@@ -14,6 +10,7 @@ with open('config.json') as config_file:
 
 user_pool_id = config.get('user_pool_id')
 invalid_status = config.get('invalid_status')
+aged_threshold = config.get('aged_threshold')
 
 def lambda_handler(event, context):
     """
@@ -22,21 +19,21 @@ def lambda_handler(event, context):
     """
 
     if not user_pool_id:
-        logger.error("Set userpool ID in config.json")
+        print("Set userpool ID in config.json")
         return
-    logger.info(f"New event: \n{event}")
+    print(f"New event: \n{event}")
 
     try: 
-        invalid_users = user_management.list_invalid_users()
+        invalid_users = user_management.list_invalid_users(invalid_status, user_pool_id)
         for user in invalid_users:
-            aged = user_management.check_user_aged(invalid_users)
+            aged = user_management.check_user_aged(user, user_pool_id, aged_threshold)
             if aged:
                 try:
-                    user_management.remove_user(user['Username'])
+                    user_management.remove_user(user, user_pool_id)
                 except:
-                    logger.error(f"Unable to remove user '{user['Username']}'")
+                    print(f"Unable to remove user '{user['Username']}'")
             else:
-                logger.error(f"User '{user}' is not aged enough to be removed.")
+                print(f"User '{user}' is not aged enough to be removed.")
                 return
     except: 
         pass
