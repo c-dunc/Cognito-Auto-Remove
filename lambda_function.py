@@ -18,24 +18,15 @@ def lambda_handler(event, context):
     :param event:
     """
 
-    if not user_pool_id:
-        print("Set userpool ID in config.json")
-        return
     print(f"New event: \n{event}")
 
     try: 
         invalid_users = UserManagement.list_invalid_users(invalid_status, user_pool_id)
+    except Exception as e:
+        return f"Error: {e}"
+    
+    try:
         for user in invalid_users:
-            aged = UserManagement.check_user_aged(user, user_pool_id, aged_threshold)
             UserManagement.check_user_aged(user, user_pool_id, aged_threshold)
-
-    #         if aged:
-    #             try:
-    #                 UserManagement.remove_user(user, user_pool_id)
-    #             except:
-    #                 print(f"Unable to remove user '{user['Username']}'")
-    #         else:
-    #             print(f"User '{user}' is not aged enough to be removed.")
-    #             return
-    except: 
-        pass
+    except Exception as e:
+        return f"Error: {e}"
