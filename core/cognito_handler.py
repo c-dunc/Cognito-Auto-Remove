@@ -23,9 +23,9 @@ class UserManagement:
             client.admin_delete_user(UserPoolId=user_pool_id, 
             Username=username
 )
-            print("Removed user {username} successfully.")
+            return {"message": f"Removed user {username} successfully."}
         except Exception as e:
-            print("Failed to remove {username}.")
+            return {"error": f"Failed to remove user '{username}': {e}"}
 
     @staticmethod
     def get_user_age(user_pool_id, username):
@@ -47,8 +47,9 @@ class UserManagement:
             age = (current_date - creation_date).days
             print(f"age: {age}, current_date: {current_date}, creation_date: {creation_date}")
             if int(age) >= int(aged_user_threshold):
-                print(f"Removing {username}...")
-                UserManagement.remove_user(username)
+                print(f"User '{username}' is aged enough to be removed.")
+                UserManagement.remove_user(username, user_pool_id)
 
         except Exception as e:
             print(f"Error occurred while confirming unverified status for user '{username}': {e}")
+            return {"error": f"Error occurred while confirming unverified status for user '{username}': {e}"}
