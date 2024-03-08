@@ -1,10 +1,10 @@
 {
-    "user_pool_id" : "eu-west-2_ZROHKM6He",
+    "user_pool_id" : "user-pool-ID",
     "aged_threshold": "3",
     "invalid_status": "UNCONFIRMED",
 
-    "SENDER_EMAIL" : "cognito@csduncan.co.uk",
+    "SENDER_EMAIL" : "SES Sender Email",
     "AWS_REGION" : "eu-west-2",
     "SUBJECT": "Removed new Cognito users",
-    "RECIPIENT": "awscognitotestcsd@gmail.com"
+    "RECIPIENT": "SES Recipient Email"
 }
