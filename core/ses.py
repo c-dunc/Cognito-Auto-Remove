@@ -1,7 +1,4 @@
 import boto3
-
-from botocore.exceptions import ClientError
-
     
 
 class ses_handler:
@@ -34,7 +31,7 @@ class ses_handler:
                     },
                 },
                 Source=sender_email,
-            )
+)
 
         except ClientError as e:
             print(e.response['Error']['Message'])
