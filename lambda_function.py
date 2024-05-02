@@ -38,7 +38,7 @@ def lambda_handler(event, context):
         return f"Error: {e}"
     
     try: 
-        body_text = ses_handler.generate_email_body() # TODO
+        body_text = ses_handler.generate_email_body(invalid_users)
         ses_handler.send_email(recipient, sender_email, aws_region, subject, body_text)
     except: 
         return f"Error: {e}"
